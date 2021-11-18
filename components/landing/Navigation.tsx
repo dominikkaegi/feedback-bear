@@ -75,7 +75,7 @@ export function Navigation() {
                         variant={'link'}
                         _hover={{
                             bg: 'blue.300',
-                        }}>
+                        }}
                         href={'#'}>
                         Sign In
                     </Button>
