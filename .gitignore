@@ -1,1 +1,4 @@
 node_modules
+prisma/migrations
+prisma/dev.db
+.next
