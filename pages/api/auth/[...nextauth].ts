@@ -28,7 +28,7 @@ const options: NextAuthOptions = {
     async session(session, token) {
       // Add property to session, like an access_token from a provider.
       if (token) {
-        session.userId = parseInt(token.id as string);
+        session.userId = token.id as string;
       }
 
       return session;
