@@ -1,14 +1,12 @@
 import { OrderedList, ListItem, Text, Box } from '@chakra-ui/react';
-import NextLink from 'next/link'
-import prisma from '../../prisma/client';
-import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import { InferGetServerSidePropsType } from 'next'
 import { getFeedback } from '../../domain/services/feedbackService';
 import { userIdOfRequest } from '../../helpers/authentication';
 
-export const getServerSideProps = async (context) => {
+export const getServerSideProps = async (context: any) => {
     const userId = await userIdOfRequest(context.req, context.res)
     if (!userId) {
-      return
+      throw new Error('Not authenticated')
     }
     const feedback = await getFeedback(userId, Number.parseInt(context.params.id))
 
