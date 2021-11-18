@@ -8,7 +8,8 @@
     "lint": "next lint",
     "studio": "prisma studio",
     "migrate": "prisma migrate dev --preview-feature",
-    "generate": "prisma generate"
+    "generate": "prisma generate",
+    "push": "prisma db push"
   },
   "dependencies": {
     "@prisma/client": "^3.5.0",
