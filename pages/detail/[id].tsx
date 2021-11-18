@@ -3,10 +3,13 @@ import NextLink from 'next/link'
 import prisma from '../../prisma/client';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { getFeedback } from '../../domain/services/feedbackService';
+import { userIdOfRequest } from '../../helpers/authentication';
 
 export const getServerSideProps = async (context) => {
-    console.log(context.params)
-    const userId = 1
+    const userId = await userIdOfRequest(context.req, context.res)
+    if (!userId) {
+      return
+    }
     const feedback = await getFeedback(userId, Number.parseInt(context.params.id))
 
     return {

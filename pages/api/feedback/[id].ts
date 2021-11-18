@@ -2,6 +2,7 @@
 import { Feedback, FeedbackStep } from '.prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { FeedbackWithSteps } from '../../../domain/feedbackExtension';
+import { userIdOfRequest } from '../../../helpers/authentication';
 import prisma from '../../../prisma/client';
 
 
@@ -11,7 +12,10 @@ export default async function handler(
 ) {
     const { id } = req.query
     const idAsNumber = Number.parseInt(id as string) // TODO clean up this cast
-    const userId = 1
+    const userId = await userIdOfRequest(req, res)
+    if (!userId) {
+      return
+    }
     if (req.method === 'GET') {
         const feedback = await prisma.feedback.findUnique({ where: { id: idAsNumber }, include: { steps: {} } });
         if (feedback === null || feedback.authorId !== userId) {
