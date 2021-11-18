@@ -22,10 +22,11 @@ import {
     ChevronRightIcon,
 } from '@chakra-ui/icons';
 
-import { signOut } from "next-auth/client";
+import {signOut, useSession} from "next-auth/client";
 
 export function NavigationPrivate() {
     const { isOpen, onToggle } = useDisclosure();
+    const [session, loading] = useSession();
 
     return (
         <Box>
@@ -33,14 +34,14 @@ export function NavigationPrivate() {
                 bg={useColorModeValue('white', 'gray.800')}
                 color={useColorModeValue('gray.600', 'white')}
                 minH={'60px'}
-                py={{ base: 2 }}
+                py={{ base: 1 }}
                 px={{ base: 4 }}
                 borderBottom={1}
                 borderStyle={'solid'}
                 borderColor={useColorModeValue('gray.200', 'gray.900')}
                 align={'center'}>
                 <Flex
-                    flex={{ base: 1, md: 'auto' }}
+                    flex={{ base: 2, md: 'auto' }}
                     ml={{ base: -2 }}
                     display={{ base: 'flex', md: 'none' }}>
                     <IconButton
@@ -63,6 +64,14 @@ export function NavigationPrivate() {
                     {/* <Flex display={{ base: 'none', md: 'flex' }} ml={10}>
                         <DesktopNav />
                     </Flex> */}
+                </Flex>
+                <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }}>
+                    <Text
+                        textAlign={useBreakpointValue({  md: 'left' })}
+                        fontFamily={'heading'}
+                        color={useColorModeValue('gray.800', 'white')}>
+                        {session?.user?.email}
+                    </Text>
                 </Flex>
 
                 <Stack
