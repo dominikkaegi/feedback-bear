@@ -4,3 +4,4 @@ prisma/dev.db
 .next
 db
 .env
+yarn.lock
