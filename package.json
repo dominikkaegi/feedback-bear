@@ -9,7 +9,8 @@
     "studio": "prisma studio",
     "migrate": "prisma migrate dev --preview-feature",
     "generate": "prisma generate",
-    "push": "prisma db push"
+    "push": "prisma db push",
+    "update": "npm run generate & npm run push" 
   },
   "dependencies": {
     "@chakra-ui/icons": "^1.1.1",
@@ -21,6 +22,8 @@
     "@prisma/client": "^3.5.0",
     "framer-motion": "^4.1.17",
     "next": "12.0.4",
+    "next-auth": "^3.27.3",
+    "nodemailer": "^6.7.1",
     "react": "17.0.2",
     "react-dom": "17.0.2"
   },

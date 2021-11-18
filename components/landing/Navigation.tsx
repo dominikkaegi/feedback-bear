@@ -22,6 +22,8 @@ import {
     ChevronRightIcon,
 } from '@chakra-ui/icons';
 
+import { signIn } from "next-auth/client";
+
 export function Navigation() {
     const { isOpen, onToggle } = useDisclosure();
 
@@ -69,6 +71,7 @@ export function Navigation() {
                     direction={'row'}
                     spacing={6}>
                     <Button
+                        onClick={() => signIn()}
                         as={'a'}
                         fontSize={'sm'}
                         fontWeight={400}
@@ -80,6 +83,7 @@ export function Navigation() {
                         Sign In
                     </Button>
                     <Button
+                        onClick={() => signIn()}
                         display={{ base: 'none', md: 'inline-flex' }}
                         fontSize={'sm'}
                         fontWeight={600}
@@ -89,6 +93,7 @@ export function Navigation() {
                         _hover={{
                             bg: 'blue.300',
                         }}>
+                            
                         Sign Up
                     </Button>
                 </Stack>

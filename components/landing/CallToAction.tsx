@@ -11,6 +11,8 @@ import {
     createIcon,
 } from '@chakra-ui/react';
 
+import { signIn  } from "next-auth/client";
+
 export function CallToAction() {
     return (
         <>
@@ -49,6 +51,7 @@ export function CallToAction() {
                         alignSelf={'center'}
                         position={'relative'}>
                         <Button
+                            onClick={() => signIn()}
                             colorScheme={'blue'}
                             bg={'blue.400'}
                             rounded={'full'}
