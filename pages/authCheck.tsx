@@ -1,25 +1,27 @@
-import type { NextPage } from 'next'
-import Head from 'next/head'
-import Image from 'next/image'
-import { useSession, signIn, signOut } from "next-auth/react"
+import Head from "next/head";
+import { signIn, signOut, useSession } from "next-auth/client";
+import { Button } from "@chakra-ui/react";
 
+export default function Home() {
+  const [session, loading] = useSession();
 
-const AuthCheck: NextPage = () => {
-  const { data: session } = useSession()
+  if (loading) {
+    return <h1>Loading....</h1>;
+  }
+
   if (session) {
     return (
-      <>
-        Signed in as {session.user?.name} <br />
-        <button onClick={() => signOut()}>Sign out</button>
-      </>
-    )
+      <div>
+        <h1>Hello, {session.user?.name}</h1>
+        <Button onClick={() => signOut()}>Signout</Button>
+      </div>
+    );
+  } else {
+    return (
+      <div>
+        <h1>You are not logged in.</h1>
+        <Button onClick={() => signIn()}>SignIn</Button>
+      </div>
+    );
   }
-  return (
-    <>
-      Not signed in <br />
-      <button onClick={() => signIn()}>Sign in</button>
-    </>
-  )
 }
-
-export default AuthCheck
