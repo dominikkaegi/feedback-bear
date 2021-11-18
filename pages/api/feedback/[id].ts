@@ -32,12 +32,12 @@ export default async function handler(
             res.status(400).end()
             return
         }
-        if (idAsNumber !== newFeedback.id) {
+        if (newFeedback.id && idAsNumber !== newFeedback.id) {
             console.log("feedback id does not match id in request")
             res.status(400).end()
             return
         }
-        if (newFeedback.steps.find(step => idAsNumber !== step.feedbackId)) {
+        if (newFeedback.steps.find(step => step.feedbackId && idAsNumber !== step.feedbackId)) {
             console.log("feedback id does not match steps feedback id")
             res.status(400).end()
             return
