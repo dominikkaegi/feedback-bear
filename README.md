@@ -1,13 +1,35 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+## Local Development Environment
 
-First, run the development server:
+1. Setup Local Postgres DB within Docker
 
-```bash
+```sh
+docker-compose -up -d
+```
+
+2. Set the environement variables
+
+Make a copy of `.env.sample` and rename it to `.env`
+
+3. Push the schema to the database
+
+```sh
+npm run push
+```
+
+4. Start the database viewer 
+
+```sh
+npm run studio
+```
+
+Open [http://localhost:5555](http://localhost:5555) with your browser to see 
+
+5. Start the application
+
+```sh
 npm run dev
-# or
-yarn dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
