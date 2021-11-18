@@ -3,16 +3,24 @@ import { Feedback, FeedbackStep } from '.prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next'
 import prisma from '../../../prisma/client';
 import { FeedbackWithSteps } from '../../../domain/feedbackExtension'
-
+import { getToken } from "next-auth/jwt"
+import { withAuthentication, userOfRequest } from '../../../helpers/authentication'
+import { getFeedbacks } from '../../../domain/services/feedbackService';
+const secret = process.env.SECRET
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Feedback[] | Feedback>
 ) {
-
+  // const user = await userOfRequest(req, res)
+  // if (!user) {
+  //   return
+  // }
+  // const userId = user.id
   const userId = 1
+
   if (req.method === 'GET') {
-    const feedbacks = await prisma.feedback.findMany({ where: { authorId: userId }, include: { steps: {} } });
+    const feedbacks = await getFeedbacks(userId)
     res.status(200).json(feedbacks);
   }
 
@@ -26,7 +34,7 @@ export default async function handler(
         description: newFeedback.description,
         title: newFeedback.title,
         authorId: userId,
-        tags: newFeedback.tags, 
+        tags: newFeedback.tags,
         steps: { create: newFeedback.steps }
       }, include: { steps: true }
     })
