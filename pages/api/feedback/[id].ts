@@ -14,8 +14,8 @@ export default async function handler(
     const userId = 1
     if (req.method === 'GET') {
         const feedback = await prisma.feedback.findUnique({ where: { id: idAsNumber }, include: { steps: {} } });
-        if (feedback === null) {
-            res.status(404)
+        if (feedback === null || feedback.authorId !== userId) {
+            res.status(404).end()
         } else {
             res.status(200).json(feedback);
         }
@@ -36,6 +36,11 @@ export default async function handler(
         if (newFeedback.steps.find(step => idAsNumber !== step.feedbackId)) {
             console.log("feedback id does not match steps feedback id")
             res.status(400).end()
+            return
+        }
+        const feedback = await prisma.feedback.findUnique({ where: { id: idAsNumber }, include: { steps: {} } });
+        if (feedback === null || feedback.authorId !== userId) {
+            res.status(404).end()
             return
         }
         const stepUpdates = newFeedback.steps.map(step => {
