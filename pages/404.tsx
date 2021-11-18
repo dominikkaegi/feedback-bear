@@ -8,7 +8,7 @@ export default function NotFound() {
                 display="inline-block"
                 as="h2"
                 size="2xl"
-                bgGradient="linear(to-r, blue.400, blue.600)"
+                bg={"blue.400"}
                 backgroundClip="text">
                 404
             </Heading>
@@ -25,7 +25,10 @@ export default function NotFound() {
             <NextLink href="/">
                 <Button
                     colorScheme="blue"
-                    bgGradient="linear(to-r, blue.400, blue.500, blue.600)"
+                    bg={"blue.400"}
+                    _hover={{
+                        bg: 'blue.300',
+                    }}
                     color="white"
                     variant="solid">
                     Go to Home

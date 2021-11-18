@@ -73,6 +73,9 @@ export function Navigation() {
                         fontSize={'sm'}
                         fontWeight={400}
                         variant={'link'}
+                        _hover={{
+                            bg: 'blue.300',
+                        }}>
                         href={'#'}>
                         Sign In
                     </Button>
