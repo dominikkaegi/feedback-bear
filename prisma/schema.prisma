@@ -89,7 +89,7 @@ model FeedbackStep {
   id         Int              @id @default(autoincrement())
   content    String
   type       FeedbackStepType
-  feedback   Feedback         @relation(fields: [feedbackId], references: [id])
+  feedback   Feedback         @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
   feedbackId Int
   @@unique ([feedbackId, type])
 }

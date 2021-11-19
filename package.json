@@ -9,8 +9,9 @@
     "studio": "prisma studio",
     "migrate": "prisma migrate dev --preview-feature",
     "generate": "prisma generate",
-    "push": "prisma db push",
-    "update": "npm run generate & npm run push" 
+    "push": "prisma db push --accept-data-loss",
+    "update": "npm run generate & npm run push",
+    "deploy": "npm run build & npm run push"
   },
   "dependencies": {
     "@chakra-ui/icons": "^1.1.1",

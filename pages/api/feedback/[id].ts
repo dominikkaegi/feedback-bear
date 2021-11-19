@@ -25,6 +25,14 @@ export default async function handler(
         }
     }
 
+    if (req.method === 'DELETE'){
+        const feedback = await prisma.feedback.deleteMany({where: {id: idAsNumber, authorId: userId}})
+        if(!feedback || feedback.count === 0){
+            res.status(404).end()
+        }else{
+            res.status(200).end()
+        }
+    }
     if (req.method === 'PUT') {
         const newFeedback = req.body as FeedbackWithSteps
         if (newFeedback.steps.length != new Set(newFeedback.steps.map(step => step.type)).size) {
@@ -32,12 +40,12 @@ export default async function handler(
             res.status(400).end()
             return
         }
-        if (idAsNumber !== newFeedback.id) {
+        if (newFeedback.id && idAsNumber !== newFeedback.id) {
             console.log("feedback id does not match id in request")
             res.status(400).end()
             return
         }
-        if (newFeedback.steps.find(step => idAsNumber !== step.feedbackId)) {
+        if (newFeedback.steps.find(step => step.feedbackId && idAsNumber !== step.feedbackId)) {
             console.log("feedback id does not match steps feedback id")
             res.status(400).end()
             return
