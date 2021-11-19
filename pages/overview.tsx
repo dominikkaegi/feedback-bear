@@ -12,7 +12,9 @@ import {
     Heading,
     Flex,
     Stack,
+    Badge,
     useBreakpointValue,
+    useColorModeValue
 } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { InferGetServerSidePropsType } from 'next';
@@ -99,11 +101,11 @@ const initalFeedbackState: IFormData = {
         },
         IMPACT: {
             content: '',
-            type: 'INTENTION',
+            type: 'IMPACT',
         },
         PLEA: {
             content: '',
-            type: 'INTENTION',
+            type: 'PLEA',
         },
     },
 };
@@ -120,16 +122,15 @@ const createFeedbackRequest = async (feedback: IFormData) => {
 };
 
 export default function FeedbackFormWrapper () {
-    const [currentStep, setStepper] = useState<FormSteps>('DETAILS')
+    const [currentStep, setStepper] = useState<FormSteps>('SUMMARY')
     const [formState, setFormState] = useState<IFormData>(initalFeedbackState);
-    console.log(formState)
 
     const updateStep = (step: FeedbackStepType, content: string)  => {
         setFormState({
             ...formState,
             steps: {
                 ...formState.steps,
-                [FeedbackStepType.INTENTION]: {
+                [step]: {
                     content,
                     type: step,
                 },
@@ -178,7 +179,7 @@ export default function FeedbackFormWrapper () {
             }
             {
                 currentStep === 'SUMMARY' ? (
-                    <Summary onSubmit={() => createFeedback()} />
+                        <Summary onSubmit={() => createFeedback()} formState={formState} />
                 ): null
             }
         </Container>
@@ -267,11 +268,83 @@ function StepForm ({onSubmit, title, description}: {onSubmit: (content: string) 
     )
 }
 
-function Summary({onSubmit}: {onSubmit: () => void}) {
+function Summary({ onSubmit, formState }: { onSubmit: () => void, formState: IFormData}) {
+    const tags = formState.tags.split(' ').map((tag) => tag.replace(',', ''))
+    console.log({
+        raw: formState.tags,
+        tags,
+    })
+    const displayTags = tags.length
+
     return (
         <div>
-            <StepExplanation title={'Summary'} />
-            <Button>Create</Button>
+            <Heading fontSize={{ base: '3xl', md: '4xl', lg: '5xl' }}>
+                <Text
+                    as={'span'}
+                    position={'relative'}
+                    _after={{
+                        content: "''",
+                        width: 'full',
+                        height: useBreakpointValue({ base: '20%', md: '30%' }),
+                        position: 'absolute',
+                        bottom: 1,
+                        left: 0,
+                        bg: 'blue.400',
+                        zIndex: -1,
+                    }}>
+                    {formState.title}
+                </Text>
+            </Heading>
+            <Box py={2}>
+                {
+                    displayTags ? (
+                        tags.map((tag) => (<Badge
+                            px={2}
+                            py={1}
+                            m={1}
+                            bg={useColorModeValue('blue.50', 'blue.800')}
+                            fontWeight={'400'}
+                        >
+                            {tag}
+                        </Badge>))
+                    ) : null
+                }
+            </Box>
+            <Box
+                border={1}
+                borderStyle={'solid'}
+                borderColor={useColorModeValue('gray.200', 'gray.900')}
+                padding={3}
+                borderRadius={4}
+            >
+                <Box py={2}>
+                    <Text fontSize="2xl" fontWeight={300}>INTENTION</Text>
+                    <Text color={'gray.500'}>
+                        {formState.steps.INTENTION.content}
+                    </Text>
+                </Box>
+                <Box py={2}>
+                    <Text fontSize="2xl" fontWeight={300}>OBSERVATION</Text>
+                    <Text color={'gray.500'}>
+                        {formState.steps.OBSERVATION.content}
+                    </Text>
+                </Box>
+                <Box py={2}>
+                    <Text fontSize="2xl" fontWeight={300}>IMPACT</Text>
+                    <Text color={'gray.500'}>
+                        {formState.steps.IMPACT.content}
+                    </Text>
+                </Box>
+                <Box py={2}>
+                    <Text fontSize="2xl" fontWeight={300}>Plea</Text>
+                    <Text color={'gray.500'}>
+                        {formState.steps.PLEA.content}
+                    </Text>
+                </Box>
+            </Box>
+            <Box mt={2}>
+                <Button width={"100%"}>Create</Button>
+            </Box>
         </div>
     )
 }
@@ -305,3 +378,4 @@ const StepExplanation = ({
         </Flex>
     );
 };
+
