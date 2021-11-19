@@ -23,7 +23,7 @@ export const getServerSideProps = async (context: any) => {
 export default function getFeedbackList({ feedback }: InferGetServerSidePropsType<typeof getServerSideProps>) {
     const router = useRouter()
     const deleteFeedback = () => {
-        fetch(`/api/feedback/${feedback?.id}`, {method: 'DELETE'}).then(() => {router.push('/overview')})
+        fetch(`/api/feedback/${feedback?.id}`, {method: 'DELETE'}).then(() => {router.push('/')})
     }
 
     const onFormSubmit = (event: any) => {

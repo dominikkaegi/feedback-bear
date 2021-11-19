@@ -7,8 +7,15 @@ import {
     Text,
     useBreakpointValue,
 } from '@chakra-ui/react';
+import { useRouter } from 'next/dist/client/router';
 
 export default function CreateFeedbackTeaser() {
+    const router = useRouter()
+    const createNewFeedback = () => {
+        router.push('/overview')
+    }
+
+
     return (
         <Stack minH={'15vh'} direction={{ base: 'column', md: 'row' }}>
             <Flex p={8} flex={1} align={'center'} justify={'center'}>
@@ -39,7 +46,7 @@ export default function CreateFeedbackTeaser() {
                         and achieving better results. It positively influences communication, team members’ interaction and teamwork results in different fields.
                     </Text>
                     <Stack direction={{ base: 'column', md: 'row' }} spacing={4}>
-                        <Button
+                        <Button onClick = {createNewFeedback}
                             rounded={'full'}
                             bg={'blue.400'}
                             color={'white'}
