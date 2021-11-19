@@ -27,9 +27,33 @@ const SpinnerScreen = () => {
     )
 }
 
-export default function LandingPage(){
+
+export const getServerSideProps = async (context: any) => {
+    const userId = await userIdOfRequest(context.req, context.res)
+    if (!userId) {
+        throw new Error('Not authenticated')
+    }
+    const feedbacks = await getFeedbacks(userId)
+
+    return {
+        props: { feedbacks: feedbacks }, // will be passed to the page component as props
+    }
+}
+
+
+export default function LandingPage({ feedbacks }: InferGetServerSidePropsType<typeof getServerSideProps>){
 
     const router = useRouter()
+    const editFeedback = (id: number) => {
+        console.log('edit feedback: ', id)
+        router.push(`/detail/${id}`)
+    }
+
+    const deleteFeedback = (id: number) => {
+        console.log('delete feedback: ', id)
+        fetch(`/api/feedback/${id}`, {method: 'DELETE'}).then(() => {router.push('/')})
+    }
+
 
     const [session, loading] = useSession();
 
@@ -46,7 +70,20 @@ export default function LandingPage(){
             </>
         )
     } else {
-        router.push("/dashboard")
-        return (<div/>)
+        return (
+            <>
+                <Container maxW={'3xl'}>
+                    <Navigation />
+                    <Box m={5}>
+                        <CreateFeedbackTeaser />
+                    </Box>
+                    <Box m={5}>
+                        <FeedbackList feedbacks={feedbacks as Feedback[]} 
+                        onDelete={(id) => deleteFeedback(id)} 
+                        onEdit={(id) => editFeedback(id)} />
+                    </Box>
+                </Container>
+            </>
+        )
     }
 }
