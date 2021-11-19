@@ -25,6 +25,14 @@ export default async function handler(
         }
     }
 
+    if (req.method === 'DELETE'){
+        const feedback = await prisma.feedback.deleteMany({where: {id: idAsNumber, authorId: userId}})
+        if(!feedback || feedback.count === 0){
+            res.status(404).end()
+        }else{
+            res.status(200).end()
+        }
+    }
     if (req.method === 'PUT') {
         const newFeedback = req.body as FeedbackWithSteps
         if (newFeedback.steps.length != new Set(newFeedback.steps.map(step => step.type)).size) {
