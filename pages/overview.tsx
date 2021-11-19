@@ -19,9 +19,10 @@ import { InferGetServerSidePropsType } from 'next';
 import { getFeedbacks } from '../domain/services/feedbackService';
 import { userIdOfRequest } from '../helpers/authentication';
 import { ChangeEvent, FormEvent, useState } from 'react';
-import { FeedbackStepType } from '.prisma/client';
+import { FeedbackStepType, Feedback, FeedbackStep } from '.prisma/client';
 import { NavigationPrivate } from '../components/landing/NavigationPrivate';
-
+import { FeedbackWithSteps } from '../domain/feedbackExtension';
+import { useRouter } from 'next/dist/client/router';
 export const getServerSideProps = async (context: any) => {
     const userId = await userIdOfRequest(context.req, context.res);
     if (!userId) {
@@ -36,7 +37,7 @@ export const getServerSideProps = async (context: any) => {
 
 type FormSteps = 'DETAILS' | FeedbackStepType | 'SUMMARY'
 
-const stepConfig: Record<FeedbackStepType, { title: string, description: string, nextStep?: FormSteps, previousStep?: FormSteps  }> = {
+const stepConfig: Record<FeedbackStepType, { title: string, description: string, nextStep?: FormSteps, previousStep?: FormSteps }> = {
     'INTENTION': {
         title: 'Intention',
         description: `
@@ -44,29 +45,33 @@ const stepConfig: Record<FeedbackStepType, { title: string, description: string,
                 It removes the need from your counterpart to make assumptions about why you are giving feedback.`,
         nextStep: 'OBSERVATION',
         previousStep: undefined
-                
+
     },
     'OBSERVATION': {
         title: 'Observation',
         description: `
-                Communicating your intention before you give your feedback is crucial.
-                It removes the need from your counterpart to make assumptions about why you are giving feedback.`,
+        Vague feedback that lacks context of the 'when' and 'where' of a situation may be misinterpreted as a personal assault or judgment.
+        You should always convey the complete context, whether you're giving favorable feedback or delivering a harsher message with negative feedback. 
+        
+        Describe the specific behaviors that observed and wan't to address.
+        Make no assumptions or subjective judgements about another person's behavior, as these might be incorrect, and they could impair your feedback.`,
         nextStep: 'IMPACT',
         previousStep: 'INTENTION'
     },
     'IMPACT': {
         title: 'Impact',
         description: `
-                Communicating your intention before you give your feedback is crucial.
-                It removes the need from your counterpart to make assumptions about why you are giving feedback.`,
+        Use subjective statements to explain how the person's behavior have affected you, your team, or the company. To convey your argument, use the words "I" or "us."`,
         nextStep: 'PLEA',
         previousStep: 'OBSERVATION'
     },
     'PLEA': {
         title: 'Plea',
         description: `
-                Communicating your intention before you give your feedback is crucial.
-                It removes the need from your counterpart to make assumptions about why you are giving feedback.`,
+        The previous phases assisted you in determining the goal and the facts around the problem.
+        Now you provide your honest opinion and assessment of the situation.
+        Your view might be based on facts or your personal perspective of the event; however, the most important aspect is to explain your assessment. 
+        What could have been done differently? How could you assist in archiving an improvement?`,
         nextStep: 'SUMMARY',
         previousStep: 'IMPACT'
     },
@@ -99,37 +104,40 @@ const initalFeedbackState: IFormData = {
         },
         IMPACT: {
             content: '',
-            type: 'INTENTION',
+            type: 'IMPACT',
         },
         PLEA: {
             content: '',
-            type: 'INTENTION',
+            type: 'PLEA',
         },
     },
 };
 
 
-const createFeedbackRequest = async (feedback: IFormData) => {
+const createFeedbackRequest = (feedback: IFormData) => {
+    const steps = feedback.steps
+    const convertedFeedback = { title: feedback.title, description: feedback.description, tags: feedback.tags, steps: [steps.INTENTION, steps.OBSERVATION, steps.IMPACT, steps.PLEA] }
     return fetch('/api/feedback', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(feedback),
+        body: JSON.stringify(convertedFeedback),
     });
 };
 
-export default function FeedbackFormWrapper () {
+export default function FeedbackFormWrapper() {
+    const router = useRouter()
+
     const [currentStep, setStepper] = useState<FormSteps>('DETAILS')
     const [formState, setFormState] = useState<IFormData>(initalFeedbackState);
-    console.log(formState)
 
-    const updateStep = (step: FeedbackStepType, content: string)  => {
+    const updateStep = (step: FeedbackStepType, content: string) => {
         setFormState({
             ...formState,
             steps: {
                 ...formState.steps,
-                [FeedbackStepType.INTENTION]: {
+                [step]: {
                     content,
                     type: step,
                 },
@@ -138,55 +146,56 @@ export default function FeedbackFormWrapper () {
     }
 
     const createFeedback = () => {
-        console.log('map the feedback to the backend value and send it')
+        createFeedbackRequest(formState).then(() => router.push("/dashboard")
+        )
     }
-    
+
 
     return (
         <>
-        <NavigationPrivate />
-        <Container size={'3xl'}>
-            {
-                currentStep === 'DETAILS' ? (
-                    <DetailsForm
-                        onSubmit={(title, description) => {
-                            setFormState({
-                                ...formState,
-                                title,
-                                description
-                            })
-                            setStepper('INTENTION')
-                        }}
-                    />
+            <NavigationPrivate />
+            <Container size={'3xl'}>
+                {
+                    currentStep === 'DETAILS' ? (
+                        <DetailsForm
+                            onSubmit={(title, description) => {
+                                setFormState({
+                                    ...formState,
+                                    title,
+                                    description
+                                })
+                                setStepper('INTENTION')
+                            }}
+                        />
 
-                ) : null
-            }
-            {
-                (currentStep === 'INTENTION' || currentStep === 'OBSERVATION' || currentStep === 'IMPACT' || currentStep === 'PLEA') ? (
-                   <StepForm
-                        title={stepConfig[currentStep].title}
-                        description={stepConfig[currentStep].description}
-                        onSubmit={(content) =>{
-                            updateStep(currentStep, content)
-                            const nextStep = stepConfig[currentStep].nextStep
-                            if(!!nextStep) {
-                                setStepper(nextStep)
-                            }
-                        }}
-                   />
-               ): null
-            }
-            {
-                currentStep === 'SUMMARY' ? (
-                    <Summary onSubmit={() => createFeedback()} />
-                ): null
-            }
-        </Container>
+                    ) : null
+                }
+                {
+                    (currentStep === 'INTENTION' || currentStep === 'OBSERVATION' || currentStep === 'IMPACT' || currentStep === 'PLEA') ? (
+                        <StepForm
+                            title={stepConfig[currentStep].title}
+                            description={stepConfig[currentStep].description}
+                            onSubmit={(content) => {
+                                updateStep(currentStep, content)
+                                const nextStep = stepConfig[currentStep].nextStep
+                                if (!!nextStep) {
+                                    setStepper(nextStep)
+                                }
+                            }}
+                        />
+                    ) : null
+                }
+                {
+                    currentStep === 'SUMMARY' ? (
+                        <Summary onSubmit={() => createFeedback()} />
+                    ) : null
+                }
+            </Container>
         </>
     )
 }
 
-function DetailsForm ({onSubmit}:{onSubmit: (title: string, description: string) => void}) {
+function DetailsForm({ onSubmit }: { onSubmit: (title: string, description: string) => void }) {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
 
@@ -238,7 +247,7 @@ function DetailsForm ({onSubmit}:{onSubmit: (title: string, description: string)
     )
 }
 
-function StepForm ({onSubmit, title, description}: {onSubmit: (content: string) => void, title: string, description: string}) {
+function StepForm({ onSubmit, title, description }: { onSubmit: (content: string) => void, title: string, description: string }) {
     const [content, setContent] = useState('');
     const [id] = useState(Math.random().toString());
 
@@ -267,11 +276,11 @@ function StepForm ({onSubmit, title, description}: {onSubmit: (content: string) 
     )
 }
 
-function Summary({onSubmit}: {onSubmit: () => void}) {
+function Summary({ onSubmit }: { onSubmit: () => void }) {
     return (
         <div>
             <StepExplanation title={'Summary'} />
-            <Button>Create</Button>
+            <Button onClick={onSubmit}>Create</Button>
         </div>
     )
 }
@@ -300,7 +309,7 @@ const StepExplanation = ({
                     >
                         {description}
                     </Text>
-                ): null}
+                ) : null}
             </Stack>
         </Flex>
     );

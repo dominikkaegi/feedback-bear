@@ -54,7 +54,7 @@ export function NavigationPrivate() {
                         textAlign={useBreakpointValue({ base: 'center', md: 'left' })}
                         fontFamily={'heading'}
                         color={useColorModeValue('gray.800', 'white')}>
-                        Logo
+                        Feedback Bear
                     </Text>
 
                     {/* <Flex display={{ base: 'none', md: 'flex' }} ml={10}>
