@@ -9,8 +9,7 @@ export const withAuthentication = async (
 ) => {
     const session = await getSession({ req });
     if (!session) {
-        res.status(401).end();
-        return
+        throw new Error('Not authenticated')
     }
 
     return session as Session;

@@ -10,23 +10,10 @@ import {
     Spinner
 } from '@chakra-ui/react';
 import { Feedback } from ".prisma/client";
-
-const feedbacks: Array<Partial<Feedback>> = [
-    {
-        id: 1234,
-        title: 'Dominiks Feedback',
-        description: 'This is a description of the feedback',
-        tags: ['tag1', 'tag2', 'tag3'],
-    },
-    {
-        id: 1235,
-        title: 'Jerome Feedback',
-        description: 'This is a description of the feedback asdflkj asdlfkj asdflj asd flaskdfj alskdfj ',
-        tags: ['tag1', 'tag2', 'tag3'],
-    },
-];
-
-
+import { userIdOfRequest } from "../helpers/authentication";
+import { getFeedbacks } from "../domain/services/feedbackService";
+import { InferGetServerSidePropsType } from "next";
+import { useRouter } from "next/dist/client/router";
 
 const SpinnerScreen = () => {
     return (
@@ -40,8 +27,10 @@ const SpinnerScreen = () => {
     )
 }
 
+export default function LandingPage(){
 
-const LandingPage: React.FC = () => {
+    const router = useRouter()
+
     const [session, loading] = useSession();
 
     if (loading) {
@@ -57,20 +46,7 @@ const LandingPage: React.FC = () => {
             </>
         )
     } else {
-        return (
-            <>
-                <Container maxW={'3xl'}>
-                    <Navigation />
-                    <Box m={5}>
-                        <CreateFeedbackTeaser />
-                    </Box>
-                    <Box m={5}>
-                        <FeedbackList feedbacks={feedbacks as Feedback[]} onDelete={(id) => console.log('delete item: ', id)} onEdit={(id) => console.log('go to edit page for: ', id)} />
-                    </Box>
-                </Container>
-            </>
-        )
+        router.push("/dashboard")
+        return (<div/>)
     }
 }
-
-export default LandingPage
