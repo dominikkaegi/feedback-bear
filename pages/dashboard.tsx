@@ -54,7 +54,6 @@ export default function LandingPage({ feedbacks }: InferGetServerSidePropsType<t
         fetch(`/api/feedback/${id}`, {method: 'DELETE'}).then(() => {router.push('/')})
     }
 
-
     const [session, loading] = useSession();
 
     if (loading) {

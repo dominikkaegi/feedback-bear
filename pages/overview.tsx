@@ -12,7 +12,9 @@ import {
     Heading,
     Flex,
     Stack,
+    Badge,
     useBreakpointValue,
+    useColorModeValue
 } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { InferGetServerSidePropsType } from 'next';
@@ -128,7 +130,6 @@ const createFeedbackRequest = (feedback: IFormData) => {
 
 export default function FeedbackFormWrapper() {
     const router = useRouter()
-
     const [currentStep, setStepper] = useState<FormSteps>('DETAILS')
     const [formState, setFormState] = useState<IFormData>(initalFeedbackState);
 
@@ -158,51 +159,51 @@ export default function FeedbackFormWrapper() {
                 {
                     currentStep === 'DETAILS' ? (
                         <DetailsForm
-                            onSubmit={(title, description) => {
+                            onSubmit={(title, tags) => {
                                 setFormState({
                                     ...formState,
                                     title,
-                                    description
+                                    tags
                                 })
                                 setStepper('INTENTION')
                             }}
                         />
 
-                    ) : null
-                }
-                {
-                    (currentStep === 'INTENTION' || currentStep === 'OBSERVATION' || currentStep === 'IMPACT' || currentStep === 'PLEA') ? (
-                        <StepForm
-                            title={stepConfig[currentStep].title}
-                            description={stepConfig[currentStep].description}
-                            onSubmit={(content) => {
-                                updateStep(currentStep, content)
-                                const nextStep = stepConfig[currentStep].nextStep
-                                if (!!nextStep) {
-                                    setStepper(nextStep)
-                                }
-                            }}
-                        />
-                    ) : null
-                }
-                {
-                    currentStep === 'SUMMARY' ? (
-                        <Summary onSubmit={() => createFeedback()} />
-                    ) : null
-                }
-            </Container>
+                ) : null
+            }
+            {
+                (currentStep === 'INTENTION' || currentStep === 'OBSERVATION' || currentStep === 'IMPACT' || currentStep === 'PLEA') ? (
+                   <StepForm
+                        title={stepConfig[currentStep].title}
+                        description={stepConfig[currentStep].description}
+                        onSubmit={(content) =>{
+                            updateStep(currentStep, content)
+                            const nextStep = stepConfig[currentStep].nextStep
+                            if(!!nextStep) {
+                                setStepper(nextStep)
+                            }
+                        }}
+                   />
+               ): null
+            }
+            {
+                currentStep === 'SUMMARY' ? (
+                        <Summary onSubmit={() => createFeedback()} formState={formState} />
+                ): null
+            }
+        </Container>
         </>
     )
 }
 
 function DetailsForm({ onSubmit }: { onSubmit: (title: string, description: string) => void }) {
     const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
+    const [tags, setTags] = useState('');
 
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        onSubmit(title, description);
+        onSubmit(title, tags);
     }
 
     return (
@@ -232,8 +233,8 @@ function DetailsForm({ onSubmit }: { onSubmit: (title: string, description: stri
                         name="tags"
                         id="tags"
                         placeholder="Dominik Work Fun"
-                        value={description}
-                        onChange={(event) => setDescription(event.target.value)}
+                        value={tags}
+                        onChange={(event) => setTags(event.target.value)}
                     />
                 </Box>
 
@@ -276,11 +277,83 @@ function StepForm({ onSubmit, title, description }: { onSubmit: (content: string
     )
 }
 
-function Summary({ onSubmit }: { onSubmit: () => void }) {
+function Summary({ onSubmit, formState }: { onSubmit: () => void, formState: IFormData}) {
+    const tags = formState.tags.split(' ').map((tag) => tag.replace(',', ''))
+    console.log({
+        raw: formState.tags,
+        tags,
+    })
+    const displayTags = tags.length
+
     return (
         <div>
-            <StepExplanation title={'Summary'} />
-            <Button onClick={onSubmit}>Create</Button>
+            <Heading fontSize={{ base: '3xl', md: '4xl', lg: '5xl' }}>
+                <Text
+                    as={'span'}
+                    position={'relative'}
+                    _after={{
+                        content: "''",
+                        width: 'full',
+                        height: useBreakpointValue({ base: '20%', md: '30%' }),
+                        position: 'absolute',
+                        bottom: 1,
+                        left: 0,
+                        bg: 'blue.400',
+                        zIndex: -1,
+                    }}>
+                    {formState.title}
+                </Text>
+            </Heading>
+            <Box py={2}>
+                {
+                    displayTags ? (
+                        tags.map((tag) => (<Badge
+                            px={2}
+                            py={1}
+                            m={1}
+                            bg={useColorModeValue('blue.50', 'blue.800')}
+                            fontWeight={'400'}
+                        >
+                            {tag}
+                        </Badge>))
+                    ) : null
+                }
+            </Box>
+            <Box
+                border={1}
+                borderStyle={'solid'}
+                borderColor={useColorModeValue('gray.200', 'gray.900')}
+                padding={3}
+                borderRadius={4}
+            >
+                <Box py={2}>
+                    <Text fontSize="2xl" fontWeight={300}>INTENTION</Text>
+                    <Text color={'gray.500'}>
+                        {formState.steps.INTENTION.content}
+                    </Text>
+                </Box>
+                <Box py={2}>
+                    <Text fontSize="2xl" fontWeight={300}>OBSERVATION</Text>
+                    <Text color={'gray.500'}>
+                        {formState.steps.OBSERVATION.content}
+                    </Text>
+                </Box>
+                <Box py={2}>
+                    <Text fontSize="2xl" fontWeight={300}>IMPACT</Text>
+                    <Text color={'gray.500'}>
+                        {formState.steps.IMPACT.content}
+                    </Text>
+                </Box>
+                <Box py={2}>
+                    <Text fontSize="2xl" fontWeight={300}>Plea</Text>
+                    <Text color={'gray.500'}>
+                        {formState.steps.PLEA.content}
+                    </Text>
+                </Box>
+            </Box>
+            <Box mt={2}>
+                <Button onClick={onSubmit} width={"100%"}>Create</Button>
+            </Box>
         </div>
     )
 }
