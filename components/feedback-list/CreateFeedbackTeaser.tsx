@@ -38,7 +38,7 @@ export default function CreateFeedbackTeaser() {
                         </Text>
                         <br />{' '}
                         <Text color={'blue.400'} as={'span'}>
-                            Loop
+                            Loop 
                         </Text>{' '}
                     </Heading>
                     <Text fontSize={{ base: 'md', lg: 'lg' }} color={'gray.500'}>
