@@ -1,7 +1,13 @@
 import { Feedback } from '.prisma/client';
-import { Button } from '@chakra-ui/button';
-import { useColorModeValue } from '@chakra-ui/color-mode';
+import { EditIcon, CloseIcon } from '@chakra-ui/icons';
 import { Badge } from '@chakra-ui/layout';
+import {
+  Flex,
+  IconButton,
+  useColorModeValue,
+  Text,
+  Box,
+} from '@chakra-ui/react';
 import {
   Table,
   TableCaption,
@@ -10,29 +16,16 @@ import {
   Th,
   Td,
   Tbody,
-  Tfoot,
 } from '@chakra-ui/table';
 
-const feedbacks: Array<Partial<Feedback>> = [
-  {
-    id: 1234,
-    title: 'Dominiks Feedback',
-    description: 'This is a description of the feedback',
-    tags: ['tag1', 'tag2', 'tag3'],
-  },
-  {
-    id: 1235,
-    title: 'Jerome Feedback',
-    description: 'This is a description of the feedback',
-    tags: ['tag1', 'tag2', 'tag3'],
-  },
-];
-
-const FeedbackListItem: React.VFC<{ feedback: Feedback }> = ({ feedback }) => {
+const FeedbackListItem: React.VFC<{
+  feedback: Feedback;
+  onEdit: () => void;
+  onDelete: () => void;
+}> = ({ feedback, onDelete, onEdit }) => {
   return (
     <Tr>
       <Td>{feedback.title}</Td>
-      <Td>{feedback.description}</Td>
       <Td>
         {feedback.tags.map((tag) => (
           <Badge
@@ -47,40 +40,62 @@ const FeedbackListItem: React.VFC<{ feedback: Feedback }> = ({ feedback }) => {
         ))}
       </Td>
       <Td>
-        <Button>Edit</Button>
+        <Flex>
+          <IconButton
+            onClick={onEdit}
+            size="sm"
+            colorScheme="blue"
+            aria-label="edit"
+            fontSize="10px"
+            icon={<EditIcon />}
+            mr={2}
+          />
+          <IconButton
+            onClick={onDelete}
+            size="sm"
+            variant="outline"
+            colorScheme="blue"
+            aria-label="delete"
+            fontSize="10px"
+            icon={<CloseIcon />}
+          />
+        </Flex>
       </Td>
     </Tr>
   );
 };
 
-export const FeedbackListW: React.VFC<{ feedbacks: Feedback[] }> = ({
-  feedbacks,
-}) => {
+export const FeedbackList: React.VFC<{
+  feedbacks: Feedback[];
+  onEdit: (id: number) => void;
+  onDelete: (id: number) => void;
+}> = ({ feedbacks, onDelete, onEdit }) => {
   return (
-    <Table
-      variant="simple"
-      borderTopRadius="md"
-      border="1px"
-      borderColor="gray.200"
-    >
-      <TableCaption>Your Feedbacks</TableCaption>
-      <Thead>
-        <Tr>
-          <Th>Title</Th>
-          <Th>Description</Th>
-          <Th>Tags</Th>
-          <Th>Actions</Th>
-        </Tr>
-      </Thead>
-      <Tbody>
-        {feedbacks.map((feedback) => (
-          <FeedbackListItem key={feedback.id} feedback={feedback as Feedback} />
-        ))}
-      </Tbody>
-    </Table>
+    <Box borderRadius="md" border="1px" borderColor="gray.200" padding="10px">
+      <Table variant="simple" size="sm">
+        <Thead>
+          <Tr>
+            <Th>Title</Th>
+            <Th>Tags</Th>
+            <Th>Actions</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          {feedbacks.map((feedback) => (
+            <FeedbackListItem
+              key={feedback.id}
+              feedback={feedback as Feedback}
+              onDelete={() => onDelete(feedback.id)}
+              onEdit={() => onEdit(feedback.id)}
+            />
+          ))}
+        </Tbody>
+      </Table>
+      {feedbacks.length === 0 ? (
+        <Box pt="30px" pb="30px">
+          <Text textAlign="center">No feedbacks yet ☠️</Text>
+        </Box>
+      ) : null}
+    </Box>
   );
-};
-
-export const FeedbackList = () => {
-  return <FeedbackListW feedbacks={feedbacks as Feedback[]} />;
 };
