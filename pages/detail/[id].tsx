@@ -1,4 +1,4 @@
-import { OrderedList, ListItem, Text, Box, FormLabel, Input, Textarea, Button } from '@chakra-ui/react';
+import { OrderedList, ListItem, Text, Box, FormLabel, Input, Textarea, Button, Container, Flex } from '@chakra-ui/react';
 import NextLink from 'next/link'
 import prisma from '../../prisma/client';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
@@ -6,6 +6,7 @@ import { getFeedback } from '../../domain/services/feedbackService';
 import { userIdOfRequest } from '../../helpers/authentication';
 import { FeedbackStepType } from '.prisma/client';
 import { useRouter } from 'next/dist/client/router';
+import { NavigationPrivate } from '../../components/landing/NavigationPrivate';
 
 export const getServerSideProps = async (context: any) => {
     const userId = await userIdOfRequest(context.req, context.res)
@@ -20,10 +21,12 @@ export const getServerSideProps = async (context: any) => {
 }
 
 
+const dashboardRoute = '/dashboard'
+
 export default function getFeedbackList({ feedback }: InferGetServerSidePropsType<typeof getServerSideProps>) {
     const router = useRouter()
     const deleteFeedback = () => {
-        fetch(`/api/feedback/${feedback?.id}`, {method: 'DELETE'}).then(() => {router.push('/')})
+        fetch(`/api/feedback/${feedback?.id}`, { method: 'DELETE' }).then(() => { router.push(dashboardRoute)})
     }
 
     const onFormSubmit = (event: any) => {
@@ -37,10 +40,8 @@ export default function getFeedbackList({ feedback }: InferGetServerSidePropsTyp
             body: `{
                 "id": ${feedbackId},
                 "title": "${event.target['title'].value}",
-                "description": "${event.target['description'].value}",
                 "tags": [
-                    "dominik",
-                    "codecamp"
+                    "Dominik", "fun"
                 ],
                 "steps": [
                     {
@@ -65,37 +66,46 @@ export default function getFeedbackList({ feedback }: InferGetServerSidePropsTyp
                     }
                 ]
             }`,
-        })
+        }).then(() => { router.push(dashboardRoute) })
+    }
+
+    const discard = () => {
+        router.push(dashboardRoute)
     }
     
     return (
-        <Box textAlign="center" py={10} px={6}>
-            <Text>{feedback?.title}</Text>
-            <Text>{feedback?.description}</Text>
-            <OrderedList>
-                {feedback?.steps.map(step => { return <ListItem>{step.type} - {step.content}</ListItem> })}
-            </OrderedList>
+        <>
+        <NavigationPrivate />
+        <Container size="3xl">
+            <Box textAlign="center" py={10} px={6}>
+                <form onSubmit={onFormSubmit}>
+                    <Input type="number" name="id" defaultValue={feedback?.id} visibility="hidden" />
 
-            <form onSubmit={onFormSubmit}>
-                <Input type="number" name="id" defaultValue={feedback?.id} visibility="hidden" />
-                <FormLabel>Title</FormLabel>
-                <Input type="text" name="title" defaultValue={feedback?.title} />
-                <FormLabel>Description</FormLabel>
-                <Input type="text" name="description" defaultValue={feedback?.description} />
+                    <FormLabel  mt={2}>Title</FormLabel>
+                    <Input type="text" name="title" defaultValue={feedback?.title} />
+                    <FormLabel >Tags</FormLabel>
+                    <Input type="text" name="tags" defaultValue={feedback?.tags} />
 
 
-                <FormLabel>Intention</FormLabel>
-                <Textarea type="text" name="intention" defaultValue={feedback?.steps.filter(step => step.type === FeedbackStepType.INTENTION)[0]?.content} />
-                <FormLabel>Observation</FormLabel>
-                <Textarea type="text" name="observation" defaultValue={feedback?.steps.filter(step => step.type === FeedbackStepType.OBSERVATION)[0]?.content} />
-                <FormLabel>Impact</FormLabel>
-                <Textarea type="text" name="impact" defaultValue={feedback?.steps.filter(step => step.type === FeedbackStepType.IMPACT)[0]?.content} />
-                <FormLabel>Plea</FormLabel>
-                <Textarea type="text" name="plea" defaultValue={feedback?.steps.filter(step => step.type === FeedbackStepType.PLEA)[0]?.content} />
-                <Button type="submit">Update</Button>
+                    <FormLabel >Intention</FormLabel>
+                    <Textarea type="text" name="intention" defaultValue={feedback?.steps.filter(step => step.type === FeedbackStepType.INTENTION)[0]?.content} />
+                    <FormLabel >Observation</FormLabel>
+                    <Textarea type="text" name="observation" defaultValue={feedback?.steps.filter(step => step.type === FeedbackStepType.OBSERVATION)[0]?.content} />
+                    <FormLabel >Impact</FormLabel>
+                    <Textarea type="text" name="impact" defaultValue={feedback?.steps.filter(step => step.type === FeedbackStepType.IMPACT)[0]?.content} />
+                    <FormLabel >Plea</FormLabel>
+                    <Textarea type="text" name="plea" defaultValue={feedback?.steps.filter(step => step.type === FeedbackStepType.PLEA)[0]?.content} />
 
-            </form>
-            <Button onClick={ deleteFeedback}>Delete</Button>
-        </Box>
+                    <Box mt={3}>
+                        <Flex justifyContent={'flex-end'}>
+                            <Button variant={""}  type="button" mr={3} onClick={ deleteFeedback}>Delete</Button>
+                                <Button variant={""} type="button" mr={3} onClick={discard}>Discard</Button>
+                            <Button  type="submit" mr={3}>Update</Button>
+                        </Flex>
+                    </Box>
+                </form>
+            </Box>
+        </Container>
+        </>
     );
 }
