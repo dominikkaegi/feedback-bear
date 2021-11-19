@@ -19,7 +19,7 @@ export const getServerSideProps = async (context: any) => {
 
 
 export default function getFeedbackList({ feedbacks }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-    const onFormSubmit = (event) => {
+    const onFormSubmit = (event: any) => {
         event.preventDefault()
         fetch('/api/feedback', {
             method: 'POST',

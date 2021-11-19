@@ -26,7 +26,7 @@ export default function getFeedbackList({ feedback }: InferGetServerSidePropsTyp
         fetch(`/api/feedback/${feedback?.id}`, {method: 'DELETE'}).then(() => {router.push('/overview')})
     }
 
-    const onFormSubmit = (event) => {
+    const onFormSubmit = (event: any) => {
         event.preventDefault()
         const feedbackId = event.target['id'].value
         fetch(`/api/feedback/${feedbackId}`, {
