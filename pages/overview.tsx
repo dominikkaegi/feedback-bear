@@ -182,6 +182,15 @@ export default function FeedbackFormWrapper() {
                                     setStepper(nextStep)
                                 }
                             }}
+                            onBack={(content) => {
+                                updateStep(currentStep, content)
+                                const previousStep = stepConfig[currentStep].previousStep
+                                if (!!previousStep) {
+                                    setStepper(previousStep)
+                                }
+                            }
+                                
+                            }
                         />
                     ) : null
                 }
@@ -247,7 +256,7 @@ function DetailsForm({ onSubmit }: { onSubmit: (title: string, description: stri
     )
 }
 
-function StepForm({ onSubmit, title, description }: { onSubmit: (content: string) => void, title: string, description: string }) {
+function StepForm({ onSubmit, title, description, onBack }: { onSubmit: (content: string) => void, title: string, description: string, onBack: (content: string) => void, }) {
     const [content, setContent] = useState('');
     const [id] = useState(Math.random().toString());
 
@@ -267,6 +276,11 @@ function StepForm({ onSubmit, title, description }: { onSubmit: (content: string
             </FormLabel>
             <Textarea id={id} type="text" name="plea" value={content} onChange={(event) => setContent(event.target.value)} />
 
+            <Box mt={2}>
+                <Button onClick={() => onBack(content)} color="blue.600" width="100%">
+                    Previous
+                </Button>
+            </Box>
             <Box mt={2}>
                 <Button type="submit" color="blue.600" width="100%">
                     Next
